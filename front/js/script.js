@@ -1,6 +1,5 @@
 let itemContainer = document.getElementById("items");
 
-
 function displayItem(item){
     itemContainer.innerHTML += `
     <a href="./product.html?id=${item._id}">
@@ -20,7 +19,6 @@ fetch("http://localhost:3000/api/products")
             displayItem(product);
         }
     })    
-    
     .catch(function(error){
-        alert("pas de kanp !")
+        alert("Pas de kanap !")
     });
