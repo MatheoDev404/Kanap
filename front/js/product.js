@@ -2,7 +2,7 @@ let url = new URL(document.location.href);
 let idProduct = url.searchParams.get("id");
 
 // Bouton ajout au panier
-let boutonAjout = document.getElementById("addToCart");
+let boutonAjoutPanier = document.getElementById("addToCart");
 
 
 function addContent(element,content) {
@@ -27,6 +27,7 @@ fetch("http://localhost:3000/api/products")
             img.src = product.imageUrl;
             img.alt = product.altTxt;
             imgContainer[0].appendChild(img);
+
             addContent("title",product.name);
             addContent("price",product.price);
             addContent("description",product.description);
@@ -43,27 +44,38 @@ fetch("http://localhost:3000/api/products")
 });
 
 
-
-boutonAjout.addEventListener(
+// Ajout de l'éléments dans le panier au clique sur le bouton
+boutonAjoutPanier.addEventListener(
     "click", 
     function(event){
 
+        // récupération des valeur colors et quantity sur la page product
         let selectedColor = document.getElementById("colors").options[document.getElementById("colors").selectedIndex].value;
-        let quantity = document.getElementById("quantity").value;
+        let quantity = document.getElementById("quantity").value.trim();
 
-        let commande = new Object();
+        // création d'un objet commande
+        let commande = {};
         commande._id = idProduct;
-        commande.selectedColor = selectedColor;
-        commande.quantity = quantity;
-        // localStorage.setItem(commande);
-        console.log(commande);
+        commande.color = selectedColor;
+        commande.quantity = parseInt(quantity);
+
+        
+        // ajout de l'objet commande au panier (localStorage)
+        if(JSON.parse(localStorage.getItem(idProduct)) === null)
+        {
+            localStorage.setItem(idProduct,JSON.stringify(commande));
+        }
+        else if(JSON.parse(localStorage.getItem(idProduct))._id === commande._id){
+            // on ajoute la quantité déja dans le panier
+            commande.quantity += parseInt(JSON.parse(localStorage.getItem(idProduct)).quantity);
+            // on suprime l'ancienne commande
+            localStorage.removeItem(idProduct);
+            // on ajoute la nouvelle commande avec tous les produits
+            localStorage.setItem(idProduct,JSON.stringify(commande));
+        }
+        
+        // redirection vers la page panier
+        window.location.replace("/front/html/cart.html");
+
     }
 )
-
-// localStorage.setItem('color', selectedColor );
-
-// stockage des info de la commande
-
-
-console.log(localStorage);
-// get couleur nombre nom WHERE id = urlId
