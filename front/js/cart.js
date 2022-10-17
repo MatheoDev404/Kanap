@@ -3,6 +3,10 @@ let itemContainer = document.getElementById("cart__items");
 let totalPriceContainer = document.getElementById("totalPrice");
 let totalQuantityContainer = document.getElementById("totalQuantity");
 
+// panier
+let cart = JSON.parse(localStorage.getItem("cart")) ? JSON.parse(localStorage.getItem("cart")) : [];
+
+
 // affiche un élément
 function displayItem(item){
     itemContainer.innerHTML += `
@@ -48,29 +52,54 @@ fetch("http://localhost:3000/api/products")
     let totalPrice = 0;
     let totalQuantity = 0;
 
-    for(let product of products){
 
-        // si l'id de l'ojet commandé correspond à l'id d'un objet, 
-        if(JSON.parse(localStorage.getItem(product._id)) !== null ){
+    for(let product of products){    
+      for (const order of cart) {
+          if(product._id === order._id){
 
-            // alors on crée un bjet avec la quantité et la couleur choisie.
+    
+
             let cartProduct = {};
             cartProduct._id = product._id;
             cartProduct.altTxt = product.altTxt;
-            cartProduct.color = JSON.parse(localStorage.getItem(product._id)).color;
+            cartProduct.color = order.color;
             cartProduct.imageUrl = product.imageUrl;
             cartProduct.name = product.name;
             cartProduct.price = product.price;
-            cartProduct.quantity = JSON.parse(localStorage.getItem(product._id)).quantity;
-            
+            cartProduct.quantity = order.quantity;  
+
             totalQuantity += cartProduct.quantity;
             totalPrice += cartProduct.quantity * cartProduct.price
 
             // on affiche le produit
             displayItem(cartProduct);
-            
-        }
+          }
+      } 
+        
     }
+    // for(let product of products){
+            
+    //     // si l'id de l'ojet commandé correspond à l'id d'un objet, 
+    //     if(JSON.parse(localStorage.getItem("product._id)")) !== null ){
+
+    //         // alors on crée un objet avec la quantité et la couleur choisie.
+    //         let cartProduct = {};
+    //         cartProduct._id = product._id;
+    //         cartProduct.altTxt = product.altTxt;
+    //         cartProduct.color = JSON.parse(localStorage.getItem(product._id)).color;
+    //         cartProduct.imageUrl = product.imageUrl;
+    //         cartProduct.name = product.name;
+    //         cartProduct.price = product.price;
+    //         cartProduct.quantity = JSON.parse(localStorage.getItem(product._id)).quantity;
+            
+    //         totalQuantity += cartProduct.quantity;
+    //         totalPrice += cartProduct.quantity * cartProduct.price
+
+    //         // on affiche le produit
+    //         displayItem(cartProduct);
+            
+    //     }
+    // }
     displayTotalPrice(totalPrice);
     displayTotalQuantity(totalQuantity);
 })   
@@ -81,4 +110,4 @@ fetch("http://localhost:3000/api/products")
 
 // suppresion d'un produit
 let deleteFromCart = document.getElementsByClassName("deleteItem");
-console.log(deleteFromCart);
+// console.log(deleteFromCart);
