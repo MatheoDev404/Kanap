@@ -6,42 +6,75 @@ let totalQuantityContainer = document.getElementById("totalQuantity");
 // panier
 let cart = JSON.parse(localStorage.getItem("cart")) ? JSON.parse(localStorage.getItem("cart")) : [];
 
+// Bouton +/- quantité
+let adjustQuantityButtons = document.getElementsByClassName("itemQuantity");
+let deleteItemFromCart = document.getElementsByClassName("deleteItem");
 
-// affiche un élément
-function displayItem(item){
-    itemContainer.innerHTML += `
-            <article class="cart__item" data-id="${item._id}" data-color="${item.color}">
-                <div class="cart__item__img">
-                  <img src="${item.imageUrl}" alt="${item.altTxt}">
-                </div>
-                <div class="cart__item__content">
-                  <div class="cart__item__content__description">
-                    <h2>${item.name}</h2>
-                    <p>${item.color}</p>
-                    <p>${item.price}€</p>
-                  </div>
-                  <div class="cart__item__content__settings">
-                    <div class="cart__item__content__settings__quantity">
-                      <p>Qté : </p>
-                      <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${item.quantity}">
-                    </div>
-                    <div class="cart__item__content__settings__delete">
-                      <p class="deleteItem">Supprimer</p>
-                    </div>
-                  </div>
-                </div>
-              </article>
-    `;
+// Bouton soumission du panier
+let submitCart = document.getElementById("order");
+
+
+// affiche le panier
+function displayCart(cart, apiProductData){
+  for(let product of apiProductData){    
+    for (const order of cart) {
+      if(product._id === order._id){
+        itemContainer.innerHTML += `
+        <article class="cart__item" data-id="${product._id}" data-color="${order.color}">
+          <div class="cart__item__img">
+            <img src="${product.imageUrl}" alt="${product.altTxt}">
+          </div>
+          <div class="cart__item__content">
+            <div class="cart__item__content__description">
+              <h2>${product.name}</h2>
+              <p>${order.color}</p>
+              <p>${product.price}€</p>
+            </div>
+            <div class="cart__item__content__settings">
+              <div class="cart__item__content__settings__quantity">
+                <p>Qté : </p>
+                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${order.quantity}">
+              </div>
+              <div class="cart__item__content__settings__delete">
+                <p class="deleteItem">Supprimer</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+  }
+  }
+}
+
+function emptyHTMLElement(element){
+  element.innerHTML="";
 }
 
 // affiche le prix du panier
-function displayTotalPrice(price){
-    totalPriceContainer.innerHTML = price;
+function displayTotalPrice(cart, apiProductData){
+  let totalPrice = 0 ;
+  for(let product of apiProductData){    
+    for (const order of cart) {
+      if(product._id === order._id){
+        totalPrice += order.quantity * product.price;
+      }
+    }
+  }
+  totalPriceContainer.innerHTML = totalPrice;
 }
 
 // affiche la quantité d'articles dans le paniers
-function displayTotalQuantity(quantity){
-    totalQuantityContainer.innerHTML = quantity;
+function displayTotalQuantity(cart, apiProductData){
+  let totalQuantity = 0 ;
+  for(let product of apiProductData){    
+    for (const order of cart) {
+      if(product._id === order._id){
+        totalQuantity += parseInt(order.quantity);
+      }
+    }
+  }
+  totalQuantityContainer.innerHTML = totalQuantity;
 }
 
 // affichage des produits 
@@ -49,65 +82,96 @@ fetch("http://localhost:3000/api/products")
 .then((response) => response.json())
 .then(function(products){
 
-    let totalPrice = 0;
-    let totalQuantity = 0;
+    // affichage du prix total
+    displayTotalPrice(cart, products);
 
+    // affichage de la quantité totale
+    displayTotalQuantity(cart, products);
 
-    for(let product of products){    
-      for (const order of cart) {
-          if(product._id === order._id){
-
+    // affichage du panier
+    displayCart(cart,products);
     
+    // modification de la quantité
+    for(let i = 0; i < adjustQuantityButtons.length; i++) {
+      adjustQuantityButtons[i].addEventListener('change', function(){
+        console.log('test');
 
-            let cartProduct = {};
-            cartProduct._id = product._id;
-            cartProduct.altTxt = product.altTxt;
-            cartProduct.color = order.color;
-            cartProduct.imageUrl = product.imageUrl;
-            cartProduct.name = product.name;
-            cartProduct.price = product.price;
-            cartProduct.quantity = order.quantity;  
 
-            totalQuantity += cartProduct.quantity;
-            totalPrice += cartProduct.quantity * cartProduct.price
-
-            // on affiche le produit
-            displayItem(cartProduct);
-          }
-      } 
+        let thisProductId = this.closest("article").dataset.id;
+        let thisProductColor = this.closest("article").dataset.color;
         
+        for (const order of cart) {
+          if(thisProductId === order._id && thisProductColor === order.color){
+            order.quantity = this.value
+
+            localStorage.removeItem("cart");
+            localStorage.setItem("cart",JSON.stringify(cart));
+            
+            // // suppression des anciens elements
+            emptyHTMLElement(totalPriceContainer);
+            emptyHTMLElement(totalQuantityContainer);
+
+            // // affichage des nouveaux elements
+            displayTotalPrice(cart, products);
+            displayTotalQuantity(cart, products);
+          }
+        }
+
+        
+
+      }, false);
     }
-    // for(let product of products){
-            
-    //     // si l'id de l'ojet commandé correspond à l'id d'un objet, 
-    //     if(JSON.parse(localStorage.getItem("product._id)")) !== null ){
 
-    //         // alors on crée un objet avec la quantité et la couleur choisie.
-    //         let cartProduct = {};
-    //         cartProduct._id = product._id;
-    //         cartProduct.altTxt = product.altTxt;
-    //         cartProduct.color = JSON.parse(localStorage.getItem(product._id)).color;
-    //         cartProduct.imageUrl = product.imageUrl;
-    //         cartProduct.name = product.name;
-    //         cartProduct.price = product.price;
-    //         cartProduct.quantity = JSON.parse(localStorage.getItem(product._id)).quantity;
-            
-    //         totalQuantity += cartProduct.quantity;
-    //         totalPrice += cartProduct.quantity * cartProduct.price
+    // suppression d'un objet dans une commande
+    for(let i = 0; i < deleteItemFromCart.length; i++) {
+      deleteItemFromCart[i].addEventListener('click', function(event){
+        
+        let thisProductId = this.closest("article").dataset.id;
+        let thisProductColor = this.closest("article").dataset.color;
+        
+        for (let i = 0; i < cart.length; i++) {
+          if(thisProductId === cart[i]._id && thisProductColor === cart[i].color){
 
-    //         // on affiche le produit
-    //         displayItem(cartProduct);
-            
-    //     }
-    // }
-    displayTotalPrice(totalPrice);
-    displayTotalQuantity(totalQuantity);
+            cart.splice(i,1);
+
+            localStorage.removeItem("cart");
+            localStorage.setItem("cart",JSON.stringify(cart));
+
+            // suppression des anciens elements
+            emptyHTMLElement(itemContainer);
+            emptyHTMLElement(totalPriceContainer);
+            emptyHTMLElement(totalQuantityContainer);
+
+            // affichage des nouveaux elements
+            displayCart(cart,products);
+            displayTotalPrice(cart, products);
+            displayTotalQuantity(cart, products);
+
+          }
+        }
+
+        
+
+        // // suppression des anciens elements
+        
+        // console.log(itemContainer);
+        // emptyHTMLElement(totalPriceContainer);
+        // emptyHTMLElement(totalQuantityContainer);
+
+        // // affichage des nouveaux elements
+
+
+
+        
+
+
+
+        // displayTotalPrice(cart, products);
+        // displayTotalQuantity(cart, products);
+
+      }, false);
+    }
 })   
 .catch(function(error){
     alert("Désolé, ce kanap n'est plus disponible !")
 });
-
-
-// suppresion d'un produit
-let deleteFromCart = document.getElementsByClassName("deleteItem");
-// console.log(deleteFromCart);
