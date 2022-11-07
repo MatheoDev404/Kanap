@@ -51,6 +51,28 @@ function updateCartLocalStorage(cart){
   localStorage.setItem("cart",JSON.stringify(cart));
 }
 
+function getTotalPrice(cart){
+  let totalPrice = 0;
+  for(item of cart){
+    totalPrice += parseInt(item.price * item.quantity);
+  }
+  return totalPrice;
+}
+
+function getTotalQuantity(cart){
+  let totalQuantity = 0;
+  for(item of cart){
+    totalQuantity += parseInt(item.quantity);
+  }
+  return totalQuantity;
+}
+
+function addContent(element,content) {
+  let elementContainer = document.getElementById(element);
+  elementContainer.innerHTML = "";
+  elementContainer.innerHTML = content;        
+}
+
 /*********************
 ***  FUNCTION END  ***
 **********************/
@@ -78,6 +100,9 @@ for(let i = 0; i < cart.length ; i++){
 setTimeout(function() {
 
   displayCart(cart);
+  addContent("totalQuantity",getTotalQuantity(cart));
+  addContent("totalPrice",getTotalPrice(cart));
+  
 
   let deleteItemFromCart = document.getElementsByClassName("deleteItem");
   let adjustQuantityButtons = document.getElementsByClassName("itemQuantity");
@@ -120,7 +145,9 @@ setTimeout(function() {
           
         }
       }
-
+      
+      addContent("totalQuantity",getTotalQuantity(cart));
+      addContent("totalPrice",getTotalPrice(cart));
       
 
     }, false);
