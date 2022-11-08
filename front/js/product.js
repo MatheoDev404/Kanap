@@ -47,14 +47,12 @@ fetch("http://localhost:3000/api/products/" + idProduct)
 
 
 // Ajout des éléments dans le panier
-boutonAjoutPanier.addEventListener(
-    "click", 
-    function(event){
+boutonAjoutPanier.addEventListener("click", function(event){
 
         // initialisation du panier
         let cart = JSON.parse(localStorage.getItem("cart")) ? JSON.parse(localStorage.getItem("cart")) : [];
 
-        // récuperation des value
+        // récuperation des valeures données
         let selectedColor = document.getElementById("colors").options[document.getElementById("colors").selectedIndex].value;
         let quantity = parseInt(document.getElementById("quantity").value.trim());
 
