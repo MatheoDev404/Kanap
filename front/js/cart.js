@@ -14,15 +14,16 @@ let deleteItemFromCartButtons;
 // collection des boutons modifier d'un produit
 let adjustQuantityButtons;
 
-// bouton de soumission de commande
-let orderButon = document.getElementById("order");
-
+// formulaire
+let cartOrderForm = document.getElementsByClassName("cart__order__form")
 // champs du formulaire
 let firstName = document.getElementById("firstName");
 let lastName = document.getElementById("lastName");
 let address = document.getElementById("address");
 let city = document.getElementById("city");
 let email = document.getElementById("email");
+// bouton de soumission de commande
+let orderButon = document.getElementById("order");
 
 // message d'erreure des champs du formulaire
 let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
@@ -39,34 +40,29 @@ let emailErrorMsg = document.getElementById("emailErrorMsg");
 **  FUNCTION   ***
 ******************/
 
-function displayCart(cart){
-
-  itemContainer.innerHTML = "";
-
-  for(item of cart){
-    itemContainer.innerHTML += 
-    `<article class="cart__item" data-id="${item._id}" data-color="${item.color}">
-      <div class="cart__item__img">
-        <img src="${item.imageUrl}" alt="${item.altTxt}">
+function displayItem(item){
+  itemContainer.innerHTML += 
+  `<article class="cart__item" data-id="${item._id}" data-color="${item.color}">
+    <div class="cart__item__img">
+      <img src="${item.imageUrl}" alt="${item.altTxt}">
+    </div>
+    <div class="cart__item__content">
+      <div class="cart__item__content__description">
+        <h2>${item.name}</h2>
+        <p>${item.color}</p>
+        <p>${item.price}€</p>
       </div>
-      <div class="cart__item__content">
-        <div class="cart__item__content__description">
-          <h2>${item.name}</h2>
-          <p>${item.color}</p>
-          <p>${item.price}€</p>
+      <div class="cart__item__content__settings">
+        <div class="cart__item__content__settings__quantity">
+          <p>Qté : </p>
+          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${item.quantity}">
         </div>
-        <div class="cart__item__content__settings">
-          <div class="cart__item__content__settings__quantity">
-            <p>Qté : </p>
-            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${item.quantity}">
-          </div>
-          <div class="cart__item__content__settings__delete">
-            <p class="deleteItem">Supprimer</p>
-          </div>
+        <div class="cart__item__content__settings__delete">
+          <p class="deleteItem">Supprimer</p>
         </div>
       </div>
-    </article>`;
-  }
+    </div>
+  </article>`;
 }
 
 function updateCartLocalStorage(cart){
@@ -102,7 +98,7 @@ function validateEmail(email) {
 }
 
 function validateName(name){
-  let regexName = /^[a-zA-z] ?([a-zA-z]|[a-zA-z] )*[a-zA-z]$/;
+  let regexName = /^[a-zA-z]* ?([a-zA-z]|[a-zA-z] )*[a-zA-z]$/;
   return regexName.test(name);
 }
 
@@ -115,21 +111,17 @@ function displayErrorMsg(errorMsg,msg){
   errorMsg.innerHTML = msg;
 }
 
-/*********************
-***  FUNCTION END  ***
-**********************/
-
-// récupération des informations  depuis l'api
-for(let i = 0; i < cart.length ; i++){
-  fetch("http://localhost:3000/api/products/" + cart[i]._id)
+function requestItem(item){
+  fetch("http://localhost:3000/api/products/" + item._id)
   .then((response) => response.json())
   .then(function(product){
 
-    cart[i].altTxt = product.altTxt;
-    cart[i].description = product.description;
-    cart[i].imageUrl = product.imageUrl;
-    cart[i].name = product.name;
-    cart[i].price = product.price;
+    item.altTxt = product.altTxt;
+    item.description = product.description;
+    item.imageUrl = product.imageUrl;
+    item.name = product.name;
+    item.price = product.price;
+    displayItem(item);
 
   })   
   .catch(function(error){
@@ -137,15 +129,23 @@ for(let i = 0; i < cart.length ; i++){
   });
 }
 
+/*********************
+***  FUNCTION END  ***
+**********************/
+
+// récupération des informations  depuis l'api
+for(let i = 0; i < cart.length ; i++){
+  requestItem(cart[i]);
+}
+
 // attente du retour de la requete à l'API
 setTimeout(function() {
 
-  displayCart(cart);
+  // displayCart(cart);
 
   addContentTo("totalQuantity",getTotalQuantity(cart));
   addContentTo("totalPrice",getTotalPrice(cart));
   
-
   deleteItemFromCartButtons = document.getElementsByClassName("deleteItem");
   adjustQuantityButtons = document.getElementsByClassName("itemQuantity");
   
@@ -190,59 +190,114 @@ setTimeout(function() {
     }, false);
   }
 
-  // vérifications des valeures entrées dans les champs du formulaire
-
-  // PRENOM
-  firstName.addEventListener('change', function(event){
-    if(validateName(firstName.value)){
-      displayErrorMsg(firstNameErrorMsg,"")
-    }else {
-      displayErrorMsg(firstNameErrorMsg,"le prénom rentrée n'est pas valide.")
-    }
-  }, false);
-
-  // NOM
-  lastName.addEventListener('change', function(event){
-    if(validateName(lastName.value)){
-      displayErrorMsg(lastNameErrorMsg,"")
-    }else {
-      displayErrorMsg(lastNameErrorMsg,"le nom rentrée n'est pas valide.")
-    }
-  }, false);
-
-  //ADRESSE
-  address.addEventListener('change', function(event){
-    if(validateAddress(address.value)){
-      displayErrorMsg(addressErrorMsg,"")
-    }else {
-      displayErrorMsg(addressErrorMsg,"l'adresse rentrée n'est pas valide.")
-    }
-  }, false);
-
-  // VILLE
-  city.addEventListener('change', function(event){
-    if(validateName(city.value)){
-      displayErrorMsg(cityErrorMsg,"")
-    }else {
-      displayErrorMsg(cityErrorMsg,"la ville rentrée n'est pas valide.")
-    }
-  }, false);
-
-  // EMAIL
-  email.addEventListener('change', function(event){
-    if(validateEmail(email.value)){
-      displayErrorMsg(emailErrorMsg,"")
-    }else {
-      displayErrorMsg(emailErrorMsg,"l'email rentré n'est pas valide.")
-    }
-  }, false);
-
-  // // click sur le bouton de soumission du formulaire
-  // orderButon.addEventListener('click', function(event){
-    
-  // }, false);
-
-
 }, 500);
 
-   
+// Vérifications des valeures entrées dans les champs du formulaire
+
+// PRENOM
+firstName.addEventListener('change', function(event){
+  if(validateName(firstName.value)){
+    displayErrorMsg(firstNameErrorMsg,"")
+  }else {
+    displayErrorMsg(firstNameErrorMsg,"le prénom rentrée n'est pas valide.")
+  }
+}, false);
+
+// NOM
+lastName.addEventListener('change', function(event){
+  if(validateName(lastName.value)){
+    displayErrorMsg(lastNameErrorMsg,"")
+  }else {
+    displayErrorMsg(lastNameErrorMsg,"le nom rentrée n'est pas valide.")
+  }
+}, false);
+
+//ADRESSE
+address.addEventListener('change', function(event){
+  if(validateAddress(address.value)){
+    displayErrorMsg(addressErrorMsg,"")
+  }else {
+    displayErrorMsg(addressErrorMsg,"l'adresse rentrée n'est pas valide.")
+  }
+}, false);
+
+// VILLE
+city.addEventListener('change', function(event){
+  if(validateName(city.value)){
+    displayErrorMsg(cityErrorMsg,"")
+  }else {
+    displayErrorMsg(cityErrorMsg,"la ville rentrée n'est pas valide.")
+  }
+}, false);
+
+// EMAIL
+email.addEventListener('change', function(event){
+  if(validateEmail(email.value)){
+    displayErrorMsg(emailErrorMsg,"")
+  }else {
+    displayErrorMsg(emailErrorMsg,"l'email rentré n'est pas valide.")
+  }
+}, false);
+
+
+// click sur le bouton de soumission du formulaire
+cartOrderForm[0].addEventListener('submit', function(event){
+  event.preventDefault();
+
+  // Si tous les champs sont valide
+  if(validateName(firstName.value) 
+  && validateName(lastName.value) 
+  && validateAddress(address.value) 
+  && validateName(city.value)  
+  && validateEmail(email.value)){
+    
+    let productsId = [];
+    
+    for(item of cart){
+      productsId.push(item._id);
+    }
+
+    // objet contact
+    let order = {
+      contact : {
+        firstName : firstName.value,
+        lastName : lastName.value,
+        address : address.value,
+        city : city.value,
+        email : email.value
+      },
+      products : productsId
+    };
+
+    console.log(JSON.stringify(order))
+
+    /**
+     *
+     * Expects request to contain:
+     * contact: {
+     *   firstName: string,
+     *   lastName: string,
+     *   address: string,
+     *   city: string,
+     *   email: string
+     * }
+     * products: [string] <-- array of product _id
+     *
+     */
+
+    fetch('http://localhost:3000/api/products/order', {
+      method: 'POST',
+      headers: { 
+        'Accept': 'application/json', 
+        'Content-Type': 'application/json' 
+        },
+      body: JSON.stringify(order),
+    })
+    .then((response) => response.json())
+    .then((order) => window.location.replace("/front/html/confirmation.html?orderId=" + order.orderId))
+    
+
+  }
+  
+
+}, false);
