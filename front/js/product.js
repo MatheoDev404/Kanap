@@ -1,3 +1,7 @@
+/*****************
+*****  VAR   *****
+*****************/
+
 // url de la page
 let url = new URL(document.location.href);
 
@@ -7,13 +11,32 @@ let idProduct = url.searchParams.get("id");
 // Bouton ajout au panier
 let boutonAjoutPanier = document.getElementById("addToCart");
 
+/*****************
+***  VAR END   ***
+*****************/
 
+/*****************
+**  FUNCTION   ***
+*****************/
 
-function addContent(element,content) {
-        let elementContainer = document.getElementById(element);
-        elementContainer.innerHTML = content;        
-}
+/************
+Nom : addContentTo
+Parametres : element,content
+Utilité : Ajoute le content à l'element en suprimant l'ancien contenu.
+return :
+*************/
+function addContentTo(element,content) {
+    let elementContainer = document.getElementById(element);
+    elementContainer.innerHTML = "";
+    elementContainer.innerHTML = content;        
+  }
 
+/************
+Nom : displayOption
+Parametres : itemContainer, item
+Utilité : Afficher les options d'un select
+return : 
+*************/
 function displayOption(itemContainer, item){
     itemContainer.innerHTML += `
     <option value="${item}">${item}</option>
@@ -32,9 +55,9 @@ fetch("http://localhost:3000/api/products/" + idProduct)
     img.alt = product.altTxt;
     imgContainer[0].appendChild(img);
 
-    addContent("title",product.name);
-    addContent("price",product.price);
-    addContent("description",product.description);
+    addContentTo("title",product.name);
+    addContentTo("price",product.price);
+    addContentTo("description",product.description);
 
     let selectColor = document.getElementById("colors")
         product.colors.forEach(element => {

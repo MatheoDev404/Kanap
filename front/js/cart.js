@@ -40,6 +40,12 @@ let emailErrorMsg = document.getElementById("emailErrorMsg");
 **  FUNCTION   ***
 ******************/
 
+/************
+Nom : displayItem
+Parametres : item
+Utilité : Afficher la fiche d'un objet.
+return : 
+*************/
 function displayItem(item){
   itemContainer.innerHTML += 
   `<article class="cart__item" data-id="${item._id}" data-color="${item.color}">
@@ -65,11 +71,23 @@ function displayItem(item){
   </article>`;
 }
 
+/************
+Nom : updateCartLocalStorage
+Parametres : cart
+Utilité : Met à jour le Cart sur le localStorage.
+return : 
+*************/
 function updateCartLocalStorage(cart){
   localStorage.removeItem("cart");
   localStorage.setItem("cart",JSON.stringify(cart));
 }
 
+/************
+Nom : getTotalPrice
+Parametres : cart
+Utilité : Calcule le prix total du Cart.
+return : totalPrice
+*************/
 function getTotalPrice(cart){
   let totalPrice = 0;
   for(item of cart){
@@ -78,6 +96,12 @@ function getTotalPrice(cart){
   return totalPrice;
 }
 
+/************
+Nom : getTotalQuantity
+Parametres : cart
+Utilité : Calcule la quantité totale du Cart.
+return : totalQuantity
+*************/
 function getTotalQuantity(cart){
   let totalQuantity = 0;
   for(item of cart){
@@ -86,42 +110,78 @@ function getTotalQuantity(cart){
   return totalQuantity;
 }
 
+/************
+Nom : addContentTo
+Parametres : element,content
+Utilité : Ajoute le content à l'element en suprimant l'ancien contenu.
+return :
+*************/
 function addContentTo(element,content) {
   let elementContainer = document.getElementById(element);
   elementContainer.innerHTML = "";
   elementContainer.innerHTML = content;        
 }
 
+/************
+Nom : validateEmail
+Parametres : email
+Utilité : teste l'email avec la regex d'email.
+return : regexEmail.test(email)
+*************/
 function validateEmail(email) {
   let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   return regexEmail.test(email);
 }
 
+/************
+Nom : validateName
+Parametres : name
+Utilité : teste le nom avec la regex de noms.
+return : regexName.test(name)
+*************/
 function validateName(name){
   let regexName = /^[a-zA-z]* ?([a-zA-z]|[a-zA-z] )*[a-zA-z]$/;
   return regexName.test(name);
 }
 
+/************
+Nom : validateAddress
+Parametres : address
+Utilité : teste l'address avec la regex d'address.
+return : regexName.test(address)
+*************/
 function validateAddress(address){
   let regexAddress = /^[0-9]* ?([a-zA-z]|[a-zA-z] )*[a-zA-z]$/;
   return regexAddress.test(address);
 }
 
+/************
+Nom : displayErrorMsg
+Parametres : errorMsg,msg
+Utilité : Affiche le msg dans le conteneur errorMsg.
+return : 
+*************/
 function displayErrorMsg(errorMsg,msg){
   errorMsg.innerHTML = msg;
 }
 
-function requestItem(item){
-  fetch("http://localhost:3000/api/products/" + item._id)
+/*********************
+***  FUNCTION END  ***
+**********************/
+
+// récupération des informations depuis l'api
+for(let i = 0; i < cart.length; i++){
+  fetch("http://localhost:3000/api/products/" + cart[i]._id)
   .then((response) => response.json())
   .then(function(product){
 
-    item.altTxt = product.altTxt;
-    item.description = product.description;
-    item.imageUrl = product.imageUrl;
-    item.name = product.name;
-    item.price = product.price;
-    displayItem(item);
+    cart[i].altTxt = product.altTxt;
+    cart[i].description = product.description;
+    cart[i].imageUrl = product.imageUrl;
+    cart[i].name = product.name;
+    cart[i].price = product.price;
+
+    displayItem(cart[i]);
 
   })   
   .catch(function(error){
@@ -129,19 +189,8 @@ function requestItem(item){
   });
 }
 
-/*********************
-***  FUNCTION END  ***
-**********************/
-
-// récupération des informations  depuis l'api
-for(let i = 0; i < cart.length ; i++){
-  requestItem(cart[i]);
-}
-
 // attente du retour de la requete à l'API
 setTimeout(function() {
-
-  // displayCart(cart);
 
   addContentTo("totalQuantity",getTotalQuantity(cart));
   addContentTo("totalPrice",getTotalPrice(cart));
@@ -190,7 +239,7 @@ setTimeout(function() {
     }, false);
   }
 
-}, 500);
+}, 700);
 
 // Vérifications des valeures entrées dans les champs du formulaire
 

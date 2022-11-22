@@ -1,5 +1,24 @@
+/*****************
+*****  VAR   *****
+*****************/
+
+// Conteneur HTML des item
 let itemContainer = document.getElementById("items");
 
+/*****************
+***  VAR END   ***
+*****************/
+
+/*****************
+**  FUNCTION   ***
+*****************/
+
+/************
+Nom : displayItem
+Parametres : item
+Utilité : Ajoute l'élément entré en parametre dans le HTML.
+return : 
+*************/
 function displayItem(item){
     itemContainer.innerHTML += `
     <a href="./product.html?id=${item._id}">
@@ -11,6 +30,10 @@ function displayItem(item){
     </a>
     `;
 }
+
+/*********************
+***  FUNCTION END  ***
+**********************/
 
 fetch("http://localhost:3000/api/products")
     .then((response) => response.json())
