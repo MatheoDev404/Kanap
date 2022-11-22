@@ -41,12 +41,34 @@ let emailErrorMsg = document.getElementById("emailErrorMsg");
 ******************/
 
 /************
+Nom : addContentTo
+Parametres : element,content
+Utilité : Ajoute le content à l'element en suprimant l'ancien contenu.
+return :
+*************/
+function addContentTo(element,content) {
+  let elementContainer = document.getElementById(element);
+  elementContainer.innerHTML = "";
+  elementContainer.innerHTML = content;        
+}
+
+/************
+Nom : displayErrorMsg
+Parametres : errorMsg,msg
+Utilité : Affiche le msg dans le conteneur errorMsg.
+return : 
+*************/
+function displayErrorMsg(errorMsg,msg){
+  errorMsg.innerHTML = msg;
+}
+
+/************
 Nom : displayItem
 Parametres : item
 Utilité : Afficher la fiche d'un objet.
 return : 
 *************/
-function displayItem(item){
+function displayItem(item,i){
   itemContainer.innerHTML += 
   `<article class="cart__item" data-id="${item._id}" data-color="${item.color}">
     <div class="cart__item__img">
@@ -69,17 +91,10 @@ function displayItem(item){
       </div>
     </div>
   </article>`;
-}
-
-/************
-Nom : updateCartLocalStorage
-Parametres : cart
-Utilité : Met à jour le Cart sur le localStorage.
-return : 
-*************/
-function updateCartLocalStorage(cart){
-  localStorage.removeItem("cart");
-  localStorage.setItem("cart",JSON.stringify(cart));
+ if(i === cart.length - 1){
+  processingCart();
+ }
+  
 }
 
 /************
@@ -111,15 +126,81 @@ function getTotalQuantity(cart){
 }
 
 /************
-Nom : addContentTo
-Parametres : element,content
-Utilité : Ajoute le content à l'element en suprimant l'ancien contenu.
-return :
+Nom : processingCart
+Parametres : 
+Utilité : Execute le processus qui necessite d'attendre la réponse de l'api
+return : 
 *************/
-function addContentTo(element,content) {
-  let elementContainer = document.getElementById(element);
-  elementContainer.innerHTML = "";
-  elementContainer.innerHTML = content;        
+function processingCart(){
+  
+  addContentTo("totalQuantity",getTotalQuantity(cart));
+  addContentTo("totalPrice",getTotalPrice(cart));
+  
+  deleteItemFromCartButtons = document.getElementsByClassName("deleteItem");
+  adjustQuantityButtons = document.getElementsByClassName("itemQuantity");
+  
+  // supression d'un objet du panier
+  for(let i = 0; i < deleteItemFromCartButtons.length; i++) {
+    
+    deleteItemFromCartButtons[i].addEventListener('click', function(event){
+      
+      let thisProductId = this.closest("article").dataset.id;
+      let thisProductColor = this.closest("article").dataset.color;
+      
+      for (let i = 0; i < cart.length; i++) {
+        if(thisProductId === cart[i]._id && thisProductColor === cart[i].color){
+          cart.splice(i,1);
+          updateCartLocalStorage(cart);
+        }
+      }
+      
+      alert('kanapé suprimmé de votre panier')
+      window.location.replace("/front/html/cart.html");
+      
+    }, false);
+  }
+  
+  // modification de la quantité d'un objet
+  for(let i = 0; i < adjustQuantityButtons.length; i++) {
+    adjustQuantityButtons[i].addEventListener('change', function(){
+      
+      let thisProductId = this.closest("article").dataset.id;
+      let thisProductColor = this.closest("article").dataset.color;
+      
+      for (let order of cart) {
+        if(thisProductId === order._id && thisProductColor === order.color){
+          order.quantity = this.value
+          updateCartLocalStorage(cart);
+        }
+      }
+
+      addContentTo("totalQuantity",getTotalQuantity(cart));
+      addContentTo("totalPrice",getTotalPrice(cart));
+      
+    }, false);
+  }
+}
+
+/************
+Nom : updateCartLocalStorage
+Parametres : cart
+Utilité : Met à jour le Cart sur le localStorage.
+return : 
+*************/
+function updateCartLocalStorage(cart){
+  localStorage.removeItem("cart");
+  localStorage.setItem("cart",JSON.stringify(cart));
+}
+
+/************
+Nom : validateAddress
+Parametres : address
+Utilité : teste l'address avec la regex d'address.
+return : regexName.test(address)
+*************/
+function validateAddress(address){
+  let regexAddress = /^[0-9]* ?([a-zA-z]|[a-zA-z] )*[a-zA-z]$/;
+  return regexAddress.test(address);
 }
 
 /************
@@ -144,54 +225,18 @@ function validateName(name){
   return regexName.test(name);
 }
 
-/************
-Nom : validateAddress
-Parametres : address
-Utilité : teste l'address avec la regex d'address.
-return : regexName.test(address)
-*************/
-function validateAddress(address){
-  let regexAddress = /^[0-9]* ?([a-zA-z]|[a-zA-z] )*[a-zA-z]$/;
-  return regexAddress.test(address);
-}
+
+
+
 
 /************
-Nom : displayErrorMsg
-Parametres : errorMsg,msg
-Utilité : Affiche le msg dans le conteneur errorMsg.
+Nom : processingCart
+Parametres : 
+Utilité : Execute le processus qui necessite d'attendre la réponse de l'api
 return : 
 *************/
-function displayErrorMsg(errorMsg,msg){
-  errorMsg.innerHTML = msg;
-}
-
-/*********************
-***  FUNCTION END  ***
-**********************/
-
-// récupération des informations depuis l'api
-for(let i = 0; i < cart.length; i++){
-  fetch("http://localhost:3000/api/products/" + cart[i]._id)
-  .then((response) => response.json())
-  .then(function(product){
-
-    cart[i].altTxt = product.altTxt;
-    cart[i].description = product.description;
-    cart[i].imageUrl = product.imageUrl;
-    cart[i].name = product.name;
-    cart[i].price = product.price;
-
-    displayItem(cart[i]);
-
-  })   
-  .catch(function(error){
-    alert("Une erreur est survenue lors du chargement du panier.")
-  });
-}
-
-// attente du retour de la requete à l'API
-setTimeout(function() {
-
+function processingCart(){
+  
   addContentTo("totalQuantity",getTotalQuantity(cart));
   addContentTo("totalPrice",getTotalPrice(cart));
   
@@ -200,9 +245,9 @@ setTimeout(function() {
   
   // supression d'un objet du panier
   for(let i = 0; i < deleteItemFromCartButtons.length; i++) {
-
+    
     deleteItemFromCartButtons[i].addEventListener('click', function(event){
-
+      
       let thisProductId = this.closest("article").dataset.id;
       let thisProductColor = this.closest("article").dataset.color;
       
@@ -212,17 +257,17 @@ setTimeout(function() {
           updateCartLocalStorage(cart);
         }
       }
-
+      
       alert('kanapé suprimmé de votre panier')
       window.location.replace("/front/html/cart.html");
-
+      
     }, false);
   }
-
+  
   // modification de la quantité d'un objet
   for(let i = 0; i < adjustQuantityButtons.length; i++) {
     adjustQuantityButtons[i].addEventListener('change', function(){
-
+      
       let thisProductId = this.closest("article").dataset.id;
       let thisProductColor = this.closest("article").dataset.color;
       
@@ -238,8 +283,36 @@ setTimeout(function() {
       
     }, false);
   }
+}
 
-}, 700);
+/*********************
+***  FUNCTION END  ***
+**********************/
+
+// récupération des informations depuis l'api
+for(let i = 0; i < cart.length; i++){
+  
+  fetch("http://localhost:3000/api/products/" + cart[i]._id)
+  .then((response) => response.json())
+  .then(function(product){
+
+    cart[i].altTxt = product.altTxt;
+    cart[i].description = product.description;
+    cart[i].imageUrl = product.imageUrl;
+    cart[i].name = product.name;
+    cart[i].price = product.price;
+
+    displayItem(cart[i],i);
+
+  })   
+  .catch(function(error){
+    alert("Une erreur est survenue lors du chargement du panier.")
+  });
+}
+
+// attente du retour de la requete à l'API
+
+
 
 // Vérifications des valeures entrées dans les champs du formulaire
 

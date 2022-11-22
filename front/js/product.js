@@ -44,6 +44,10 @@ function displayOption(itemContainer, item){
 }
 
 
+/*********************
+***  FUNCTION END  ***
+**********************/
+
 // requete vers l'API sur l'id du produit
 fetch("http://localhost:3000/api/products/" + idProduct)
 .then((response) => response.json())
