@@ -136,19 +136,28 @@ Utilité : Execute le processus qui necessite d'attendre la réponse de l'api
 return : 
 *************/
 function processingCart(){
-
   try {
-    addContentTo("totalQuantity",getTotalQuantity(cart));
+    addContentTo("totalQuantity",function() {
+      try {
+        getTotalQuantity(cart)
+      } catch (error) {
+        console.log('fonction getTotalQuantity en erreur fichier cart.js 01'); 
+      }
+    });
   } catch (error) {
     console.log('fonction addContentTo en erreur fichier cart.js 01');
   }
-  
   try {
-    addContentTo("totalPrice",getTotalPrice(cart));
+    addContentTo("totalPrice",function() {
+      try {
+        getTotalPrice(cart)
+      } catch (error) {
+        console.log('fonction getTotalQuantity en erreur fichier cart.js 01'); 
+      }
+    });
   } catch (error) {
     console.log('fonction addContentTo en erreur fichier cart.js 02');
   }
-
   
   deleteItemFromCartButtons = document.getElementsByClassName("deleteItem");
   adjustQuantityButtons = document.getElementsByClassName("itemQuantity");
@@ -201,16 +210,31 @@ function processingCart(){
       }
 
       try {
-        addContentTo("totalQuantity",getTotalQuantity(cart));
+        addContentTo("totalQuantity",function() {
 
+          try {
+            getTotalQuantity(cart)
+          } catch (error) {
+            console.log('fonction getTotalQuantity en erreur fichier cart.js 02'); 
+          }
+
+        });
       } catch (error) {
-        console.log('fonction addContentTo en erreur fichier cart.js 01');
+        console.log('fonction addContentTo en erreur fichier cart.js 03');
       }
-      try {
-        addContentTo("totalPrice",getTotalPrice(cart));
 
+      try {
+        addContentTo("totalPrice",function() {
+
+          try {
+            getTotalPrice(cart)
+          } catch (error) {
+            console.log('fonction getTotalQuantity en erreur fichier cart.js 02'); 
+          }
+          
+        });
       } catch (error) {
-        console.log('fonction addContentTo en erreur fichier cart.js 02');
+        console.log('fonction addContentTo en erreur fichier cart.js 04');
       }
       
     }, false);
@@ -261,69 +285,12 @@ function validateName(name){
   return regexName.test(name);
 }
 
-/************
-Nom : processingCart
-Parametres : 
-Utilité : Execute le processus qui necessite d'attendre la réponse de l'api
-return : 
-*************/
-function processingCart(){
-  
-  addContentTo("totalQuantity",getTotalQuantity(cart));
-  addContentTo("totalPrice",getTotalPrice(cart));
-  
-  deleteItemFromCartButtons = document.getElementsByClassName("deleteItem");
-  adjustQuantityButtons = document.getElementsByClassName("itemQuantity");
-  
-  // supression d'un objet du panier
-  for(let i = 0; i < deleteItemFromCartButtons.length; i++) {
-    
-    deleteItemFromCartButtons[i].addEventListener('click', function(event){
-      
-      let thisProductId = this.closest("article").dataset.id;
-      let thisProductColor = this.closest("article").dataset.color;
-      
-      for (let i = 0; i < cart.length; i++) {
-        if(thisProductId === cart[i]._id && thisProductColor === cart[i].color){
-          cart.splice(i,1);
-          updateCartLocalStorage(cart);
-        }
-      }
-      
-      alert('kanapé suprimmé de votre panier')
-      window.location.replace("/front/html/cart.html");
-      
-    }, false);
-  }
-  
-  // modification de la quantité d'un objet
-  for(let i = 0; i < adjustQuantityButtons.length; i++) {
-    adjustQuantityButtons[i].addEventListener('change', function(){
-      
-      let thisProductId = this.closest("article").dataset.id;
-      let thisProductColor = this.closest("article").dataset.color;
-      
-      for (let order of cart) {
-        if(thisProductId === order._id && thisProductColor === order.color){
-          order.quantity = this.value
-          updateCartLocalStorage(cart);
-        }
-      }
-
-      addContentTo("totalQuantity",getTotalQuantity(cart));
-      addContentTo("totalPrice",getTotalPrice(cart));
-      
-    }, false);
-  }
-}
-
 /*********************
 ***  FUNCTION END  ***
 **********************/
 
 // récupération des informations depuis l'api
 for(let i = 0; i < cart.length; i++){
-  
   fetch("http://localhost:3000/api/products/" + cart[i]._id)
   .then((response) => response.json())
   .then(function(product){
@@ -339,7 +306,6 @@ for(let i = 0; i < cart.length; i++){
     } catch (error) {
       console.log('fonction displayItem en erreur fichier cart.js');
     }
-
   })   
   .catch(function(error){
     alert("Une erreur est survenue lors du chargement du panier.")
@@ -351,45 +317,85 @@ for(let i = 0; i < cart.length; i++){
 // PRENOM
 firstName.addEventListener('change', function(event){
   if(validateName(firstName.value)){
-    displayErrorMsg(firstNameErrorMsg,"")
+    try {
+      displayErrorMsg(firstNameErrorMsg,"");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 01');
+    }
   }else {
-    displayErrorMsg(firstNameErrorMsg,"le prénom rentrée n'est pas valide.")
+    try {
+      displayErrorMsg(firstNameErrorMsg,"le prénom rentrée n'est pas valide.");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 02');
+    }
   }
 }, false);
 
 // NOM
 lastName.addEventListener('change', function(event){
   if(validateName(lastName.value)){
-    displayErrorMsg(lastNameErrorMsg,"")
+    try {
+      displayErrorMsg(lastNameErrorMsg,"");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 03');
+    }
   }else {
-    displayErrorMsg(lastNameErrorMsg,"le nom rentrée n'est pas valide.")
+    try {
+      displayErrorMsg(lastNameErrorMsg,"le nom rentrée n'est pas valide.");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 04');
+    }
   }
 }, false);
 
 //ADRESSE
 address.addEventListener('change', function(event){
   if(validateAddress(address.value)){
-    displayErrorMsg(addressErrorMsg,"")
+    try {
+      displayErrorMsg(addressErrorMsg,"");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 05');
+    }
   }else {
-    displayErrorMsg(addressErrorMsg,"l'adresse rentrée n'est pas valide.")
+    try {
+      displayErrorMsg(addressErrorMsg,"l'adresse rentrée n'est pas valide.");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 06');
+    }
   }
 }, false);
 
 // VILLE
 city.addEventListener('change', function(event){
   if(validateName(city.value)){
-    displayErrorMsg(cityErrorMsg,"")
+    try {
+      displayErrorMsg(cityErrorMsg,"");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 07');
+    }
   }else {
-    displayErrorMsg(cityErrorMsg,"la ville rentrée n'est pas valide.")
+    try {
+      displayErrorMsg(cityErrorMsg,"la ville rentrée n'est pas valide.");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 08');
+    }
   }
 }, false);
 
 // EMAIL
 email.addEventListener('change', function(event){
   if(validateEmail(email.value)){
-    displayErrorMsg(emailErrorMsg,"")
+    try {
+      displayErrorMsg(emailErrorMsg,"");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 09');
+    }
   }else {
-    displayErrorMsg(emailErrorMsg,"l'email rentré n'est pas valide.")
+    try {
+      displayErrorMsg(emailErrorMsg,"l'email rentré n'est pas valide.");
+    } catch (error) {
+      console.log('fonction displayErrorMsg en erreur fichier cart.js 10');
+    }
   }
 }, false);
 
