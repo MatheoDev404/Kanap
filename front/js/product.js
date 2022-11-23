@@ -29,7 +29,7 @@ function addContentTo(element,content) {
     let elementContainer = document.getElementById(element);
     elementContainer.innerHTML = "";
     elementContainer.innerHTML = content;        
-  }
+}
 
 /************
 Nom : displayOption
@@ -59,13 +59,32 @@ fetch("http://localhost:3000/api/products/" + idProduct)
     img.alt = product.altTxt;
     imgContainer[0].appendChild(img);
 
-    addContentTo("title",product.name);
-    addContentTo("price",product.price);
-    addContentTo("description",product.description);
+    try {
+        addContentTo("title",product.name);
+    } catch (error) {
+        console.log('fonction addContentTo en erreur fichier product.js 01');
+    }
+        
+    try {
+        addContentTo("price",product.price);
+    } catch (error) {
+        console.log('fonction addContentTo en erreur fichier product.js 02');  
+    }
+    
+    try {
+        addContentTo("description",product.description);
+    } catch (error) {
+        console.log('fonction addContentTo en erreur fichier product.js 03');
+    }
 
     let selectColor = document.getElementById("colors")
         product.colors.forEach(element => {
-        displayOption(selectColor,element)
+
+        try {
+            displayOption(selectColor,element);
+        } catch (error) {
+            console.log('fonction displayOption en erreur fichier product.js');
+        }
     });
 })   
 .catch(function(error){
@@ -93,7 +112,7 @@ boutonAjoutPanier.addEventListener("click", function(event){
             let found = false;
 
             for (const order of cart) {
-                // si le currentOrder correspond a un order dans le panier on ajoute la quantité à celui existant
+                // si le currentOrder correspond à un order dans le panier on ajoute la quantité à l'order existant
                 if(currentOrder._id === order._id && currentOrder.color === order.color){
                     order.quantity += currentOrder.quantity;
                     found = true;

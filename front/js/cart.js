@@ -92,7 +92,11 @@ function displayItem(item,i){
     </div>
   </article>`;
  if(i === cart.length - 1){
-  processingCart();
+  try {
+    processingCart(); 
+  } catch (error) {
+    console.log('fonction processingCart en erreur fichier cart.js');
+  }
  }
   
 }
@@ -132,9 +136,19 @@ Utilité : Execute le processus qui necessite d'attendre la réponse de l'api
 return : 
 *************/
 function processingCart(){
+
+  try {
+    addContentTo("totalQuantity",getTotalQuantity(cart));
+  } catch (error) {
+    console.log('fonction addContentTo en erreur fichier cart.js 01');
+  }
   
-  addContentTo("totalQuantity",getTotalQuantity(cart));
-  addContentTo("totalPrice",getTotalPrice(cart));
+  try {
+    addContentTo("totalPrice",getTotalPrice(cart));
+  } catch (error) {
+    console.log('fonction addContentTo en erreur fichier cart.js 02');
+  }
+
   
   deleteItemFromCartButtons = document.getElementsByClassName("deleteItem");
   adjustQuantityButtons = document.getElementsByClassName("itemQuantity");
@@ -150,7 +164,13 @@ function processingCart(){
       for (let i = 0; i < cart.length; i++) {
         if(thisProductId === cart[i]._id && thisProductColor === cart[i].color){
           cart.splice(i,1);
-          updateCartLocalStorage(cart);
+
+          try {
+            updateCartLocalStorage(cart);
+          } catch (error) {
+            console.log('fonction updateCartLocalStorage en erreur fichier cart.js 01');
+          }
+          
         }
       }
       
@@ -170,12 +190,28 @@ function processingCart(){
       for (let order of cart) {
         if(thisProductId === order._id && thisProductColor === order.color){
           order.quantity = this.value
-          updateCartLocalStorage(cart);
+
+          try {
+            updateCartLocalStorage(cart);
+          } catch (error) {
+            console.log('fonction updateCartLocalStorage en erreur fichier cart.js 02');
+          }
+
         }
       }
 
-      addContentTo("totalQuantity",getTotalQuantity(cart));
-      addContentTo("totalPrice",getTotalPrice(cart));
+      try {
+        addContentTo("totalQuantity",getTotalQuantity(cart));
+
+      } catch (error) {
+        console.log('fonction addContentTo en erreur fichier cart.js 01');
+      }
+      try {
+        addContentTo("totalPrice",getTotalPrice(cart));
+
+      } catch (error) {
+        console.log('fonction addContentTo en erreur fichier cart.js 02');
+      }
       
     }, false);
   }
@@ -224,10 +260,6 @@ function validateName(name){
   let regexName = /^[a-zA-z]* ?([a-zA-z]|[a-zA-z] )*[a-zA-z]$/;
   return regexName.test(name);
 }
-
-
-
-
 
 /************
 Nom : processingCart
@@ -302,17 +334,17 @@ for(let i = 0; i < cart.length; i++){
     cart[i].name = product.name;
     cart[i].price = product.price;
 
-    displayItem(cart[i],i);
+    try {
+      displayItem(cart[i],i);
+    } catch (error) {
+      console.log('fonction displayItem en erreur fichier cart.js');
+    }
 
   })   
   .catch(function(error){
     alert("Une erreur est survenue lors du chargement du panier.")
   });
 }
-
-// attente du retour de la requete à l'API
-
-
 
 // Vérifications des valeures entrées dans les champs du formulaire
 
@@ -417,8 +449,6 @@ cartOrderForm[0].addEventListener('submit', function(event){
     })
     .then((response) => response.json())
     .then((order) => window.location.replace("/front/html/confirmation.html?orderId=" + order.orderId))
-    
-
   }
   
 
