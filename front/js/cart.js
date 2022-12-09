@@ -108,11 +108,18 @@ Utilité : Calcule le prix total du Cart.
 return : totalPrice
 *************/
 function getTotalPrice(cart){
-  let totalPrice = 0;
-  for(item of cart){
-    totalPrice += parseInt(item.price * item.quantity);
+
+  try {
+    let totalPrice = 0;
+    for(item of cart){
+      totalPrice += parseInt(item.price * item.quantity);
+    }
+    return totalPrice;
+  } catch (error) {
+    console.log('fonction getTotalPrice en erreur fichier cart.js 01');
+    
   }
-  return totalPrice;
+  
 }
 
 /************
@@ -122,11 +129,16 @@ Utilité : Calcule la quantité totale du Cart.
 return : totalQuantity
 *************/
 function getTotalQuantity(cart){
-  let totalQuantity = 0;
-  for(item of cart){
-    totalQuantity += parseInt(item.quantity);
+  try {
+    let totalQuantity = 0;
+    for(item of cart){
+      totalQuantity += parseInt(item.quantity);
+    }
+    return totalQuantity;
+  } catch (error) {
+    console.log('fonction getTotalQuantity en erreur fichier cart.js 01');
   }
-  return totalQuantity;
+ 
 }
 
 /************
@@ -137,24 +149,12 @@ return :
 *************/
 function processingCart(){
   try {
-    addContentTo("totalQuantity",function() {
-      try {
-        getTotalQuantity(cart)
-      } catch (error) {
-        console.log('fonction getTotalQuantity en erreur fichier cart.js 01'); 
-      }
-    });
+    addContentTo("totalQuantity",getTotalQuantity(cart));
   } catch (error) {
     console.log('fonction addContentTo en erreur fichier cart.js 01');
   }
   try {
-    addContentTo("totalPrice",function() {
-      try {
-        getTotalPrice(cart)
-      } catch (error) {
-        console.log('fonction getTotalQuantity en erreur fichier cart.js 01'); 
-      }
-    });
+    addContentTo("totalPrice",getTotalPrice(cart));
   } catch (error) {
     console.log('fonction addContentTo en erreur fichier cart.js 02');
   }
@@ -210,29 +210,13 @@ function processingCart(){
       }
 
       try {
-        addContentTo("totalQuantity",function() {
-
-          try {
-            getTotalQuantity(cart)
-          } catch (error) {
-            console.log('fonction getTotalQuantity en erreur fichier cart.js 02'); 
-          }
-
-        });
+        addContentTo("totalQuantity",getTotalQuantity(cart));
       } catch (error) {
         console.log('fonction addContentTo en erreur fichier cart.js 03');
       }
 
       try {
-        addContentTo("totalPrice",function() {
-
-          try {
-            getTotalPrice(cart)
-          } catch (error) {
-            console.log('fonction getTotalQuantity en erreur fichier cart.js 02'); 
-          }
-          
-        });
+        addContentTo("totalPrice",getTotalPrice(cart));
       } catch (error) {
         console.log('fonction addContentTo en erreur fichier cart.js 04');
       }
