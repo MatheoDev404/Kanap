@@ -393,7 +393,8 @@ cartOrderForm[0].addEventListener('submit', function(event){
   && validateName(lastName.value) 
   && validateAddress(address.value) 
   && validateName(city.value)  
-  && validateEmail(email.value)){
+  && validateEmail(email.value)
+  && cart.length > 0){
     
     let productsId = [];
     
@@ -412,8 +413,6 @@ cartOrderForm[0].addEventListener('submit', function(event){
       },
       products : productsId
     };
-
-    console.log(JSON.stringify(order))
 
     /**
      *
