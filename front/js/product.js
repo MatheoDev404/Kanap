@@ -102,39 +102,47 @@ boutonAjoutPanier.addEventListener("click", function(event){
         let selectedColor = document.getElementById("colors").options[document.getElementById("colors").selectedIndex].value;
         let quantity = parseInt(document.getElementById("quantity").value.trim());
 
-        let currentOrder = {};
-        currentOrder._id = idProduct;
-        currentOrder.color = selectedColor;
-        currentOrder.quantity = parseInt(quantity);
+        console.log(selectedColor.length);
+        console.log(quantity);
+        if(selectedColor.length > 0 && quantity > 0){
 
-        if(cart.length > 0){
+            let currentOrder = {};
+            currentOrder._id = idProduct;
+            currentOrder.color = selectedColor;
+            currentOrder.quantity = parseInt(quantity);
             
-            let found = false;
-
-            for (const order of cart) {
-                // si le currentOrder correspond à un order dans le panier on ajoute la quantité à l'order existant
-                if(currentOrder._id === order._id && currentOrder.color === order.color){
-                    order.quantity += currentOrder.quantity;
-                    found = true;
-                    break;
+            if(cart.length > 0){
+                
+                let found = false;
+                
+                for (const order of cart) {
+                    // si le currentOrder correspond à un order dans le panier on ajoute la quantité à l'order existant
+                    if(currentOrder._id === order._id && currentOrder.color === order.color){
+                        order.quantity += currentOrder.quantity;
+                        if(order.quantity > 100){
+                            order.quantity = 100;
+                        }
+                        found = true;
+                        break;
+                    }
                 }
-            }
+                
+                if(found === false){
+                    cart.push(currentOrder);
+                }
+                
+                localStorage.removeItem("cart");
+                localStorage.setItem("cart",JSON.stringify(cart));
+                
+            }else {
 
-            if(found === false){
                 cart.push(currentOrder);
+                localStorage.setItem("cart",JSON.stringify(cart));
+                
             }
-
-            localStorage.removeItem("cart");
-            localStorage.setItem("cart",JSON.stringify(cart));
-
-        }else {
-
-            cart.push(currentOrder);
-            localStorage.setItem("cart",JSON.stringify(cart));
-
+            
+            window.location.replace("/front/html/cart.html");
         }
-        
-        window.location.replace("/front/html/cart.html");
 
     }, false
 )
